@@ -404,6 +404,7 @@ namespace TiPEIS
             string ValueStockRec = null;
             string ValueMOLSend = null;
             string ValueMOLRec = null;
+            string count = textBoxCount.Text;
 
             if (comboBoxStockSend.Text != "")
             {
@@ -446,6 +447,23 @@ namespace TiPEIS
                 ExecuteQuery(add);
                 string selectcomand = "Select idTable, Count, Summa, IdOperation, Materials from TablePart " + "where IdOperation=" + id;
                 selectTable(ConnectionString, selectcomand);
+                //проводка
+                String selectMaxJEid = "select MAX(IdJournalEntries) from JournalEntries";
+                object JEid = selectValue(ConnectionString, selectMaxJEid);
+                //не идет по всей датагридвью
+                for (int i = 0; i < dataGridView1.RowCount; i++)
+                {
+                    int CurrentRow = dataGridView1.SelectedCells[i].RowIndex;
+                    String selectDT = "select Subaccount from Materials where idMaterials = " + dataGridView1[4, CurrentRow].Value;
+                    object D_T = selectValue(ConnectionString, selectDT);
+                    String selectKT = "select Subaccount from Materials where idMaterials = " + dataGridView1[4, CurrentRow].Value;
+                    object K_T = selectValue(ConnectionString, selectKT);
+                    string addPr = "INSERT INTO JournalEntries (IdJournalEntries, Date, Comment, DT, SubkontoDT1, SubkontoDT2, SubkontoDT3, KT, SubkontoKT1, SubkontoKT2, SubkontoKT3, Count, Summa) VALUES(" +
+                    (Convert.ToInt32(JEid) + 1) + ",'" + dateTimePicker1.Text + "'," + "'Перемещение материалов'" + ",'" + D_T.ToString() + "', " + Convert.ToInt32(dataGridView1[4, CurrentRow].Value) + "," + Convert.ToInt32(ValueStockRec) + "," +
+                    Convert.ToInt32(ValueMOLRec) + ",'" + K_T.ToString() + "', " + Convert.ToInt32(dataGridView1[4, CurrentRow].Value) + "," + Convert.ToInt32(ValueStockSend) + "," +
+                    Convert.ToInt32(ValueMOLSend) + "," + Convert.ToDouble(dataGridView1[1, CurrentRow].Value) + "," + dataGridView1[2, CurrentRow].Value.ToString().Replace(',', '.') + ")";
+                    ExecuteQuery(addPr);
+                }
 
                 DialogResult = DialogResult.Cancel;
                 Close();
@@ -454,6 +472,40 @@ namespace TiPEIS
 
         }
 
+        public void selectTable(string ConnectionString)
+        {
+            try
+            {
+                SQLiteConnection connect = new
+                SQLiteConnection(ConnectionString);
+                connect.Open();
+                SQLiteDataAdapter dataAdapter = new
+                SQLiteDataAdapter("Select IdJournalEntries, Date,Comment, DT, SubkontoDT1, SubkontoDT2, SubkontoDT3, KT, SubkontoKT1, SubkontoKT2, SubkontoKT3, Count, Summa, IDOperation from JournalEntries", connect);
+                DataSet ds = new DataSet();
+                dataAdapter.Fill(ds);
+                dataGridView1.DataSource = ds;
+                dataGridView1.DataMember = ds.Tables[0].ToString();
+                connect.Close();
+                dataGridView1.Columns["IdJournalEntries"].DisplayIndex = 0;
+                dataGridView1.Columns["Date"].DisplayIndex = 1;
+                dataGridView1.Columns["Comment"].DisplayIndex = 2;
+                dataGridView1.Columns["DT"].DisplayIndex = 3;
+                dataGridView1.Columns["SubkontoDT1"].DisplayIndex = 4;
+                dataGridView1.Columns["SubkontoDT2"].DisplayIndex = 5;
+                dataGridView1.Columns["SubkontoDT3"].DisplayIndex = 6;
+                dataGridView1.Columns["KT"].DisplayIndex = 7;
+                dataGridView1.Columns["SubkontoKT1"].DisplayIndex = 8;
+                dataGridView1.Columns["SubkontoKT2"].DisplayIndex = 9;
+                dataGridView1.Columns["SubkontoKT3"].DisplayIndex = 10;
+                dataGridView1.Columns["Count"].DisplayIndex = 11;
+                dataGridView1.Columns["Summa"].DisplayIndex = 12;
+                dataGridView1.Columns["IDOperation"].DisplayIndex = 13;
+            }
+            catch
+            {
+
+            }
+        }
         public void CalcTotalSum()
         {
             double sum = 0;

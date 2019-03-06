@@ -85,9 +85,10 @@ namespace TiPEIS
             object DT = selectValue(ConnectionString, selectDT);
             String selectKT = "select idChart from ChartOfAccounts where NumAccounts = 60";
             object KT = selectValue(ConnectionString, selectKT);
+
             string add = "INSERT INTO JournalEntries (IdJournalEntries, Date, Comment, DT, SubkontoDT1, SubkontoDT2, SubkontoDT3, KT, Count, Summa) VALUES(" + 
-                (Convert.ToInt32(maxValue) + 1) + ",'" + maskedTextBox1.Text + "'," + "'Поступление_Материалов'"  + "," + DT.ToString() + ", " + Convert.ToInt32(material) + "," + Convert.ToInt32(stock) + "," + 
-                Convert.ToInt32(mol) + "," + KT.ToString() + "," + Convert.ToDouble(count) + "," + Summa.ToString().Replace(',' , '.') + ")";
+                (Convert.ToInt32(maxValue) + 1) + ",'" + maskedTextBox1.Text + "'," + "'Поступление материалов'"  + ",'" + DT.ToString() + "', " + Convert.ToInt32(material) + "," + Convert.ToInt32(stock) + "," + 
+                Convert.ToInt32(mol) + ",'" + KT.ToString() + "'," + Convert.ToDouble(count) + "," + Summa.ToString().Replace(',' , '.') + ")";
                 ExecuteQuery(add);
                 selectTable(ConnectionString);
             String selectCommand = "select MAX(IdJournalEntries) from JournalEntries";
@@ -155,7 +156,6 @@ namespace TiPEIS
                dataGridView1.Columns["SubkontoDT2"].DisplayIndex = 5;
                dataGridView1.Columns["SubkontoDT3"].DisplayIndex = 6;
                dataGridView1.Columns["KT"].DisplayIndex = 7;
-            
                dataGridView1.Columns["SubkontoKT1"].DisplayIndex = 8;
                dataGridView1.Columns["SubkontoKT2"].DisplayIndex = 9;
                dataGridView1.Columns["SubkontoKT3"].DisplayIndex = 10;
